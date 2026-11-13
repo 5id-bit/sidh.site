@@ -567,6 +567,13 @@ html.no-motion .flip-in, html.no-motion .cs-rec .dot { animation: none; }
 .wrapup-wrap { overflow: hidden; margin-top: clamp(1.5rem, 5vw, 3.5rem); }
 /* clapperboard: the top stick snaps shut as it scrolls into view */
 .slate { width: min(100%, 17rem); margin-bottom: 1.1rem; padding-top: 4.4rem; }
+/* pixel runner: an original little camera operator hurdling tripods and film cans */
+.runner { position: relative; width: min(100%, 40rem); margin-bottom: 1.1rem; border-bottom: 2px solid var(--fg); cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.runner canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+.run-hud { position: absolute; left: 0; right: 0; top: 0; display: flex; gap: 1.2rem; padding: 0.4rem 0.2rem; font-size: 0.64rem; letter-spacing: 0.14em; color: var(--muted); pointer-events: none; }
+.run-hud .run-hint { margin-left: auto; }
+.runner.is-hit canvas { animation: runhit 0.35s steps(2) 2; }
+@keyframes runhit { 50% { opacity: 0.25; } }
 .stick { height: 1.15rem; border: 2px solid var(--fg); background: repeating-linear-gradient(115deg, var(--fg) 0 1.1rem, var(--bg) 1.1rem 2.2rem); }
 .stick.top { border-bottom-width: 1px; transform-origin: 0 100%; transition: transform 0.22s cubic-bezier(0.6, 0, 0.9, 0.5) 0.7s; }
 .stick.bot { border-top-width: 1px; background: repeating-linear-gradient(115deg, var(--bg) 0 1.1rem, var(--fg) 1.1rem 2.2rem); }
@@ -1079,10 +1086,9 @@ html.no-motion { scroll-behavior: auto; }
           </div>
         </div>
         <div class="wrapup-wrap rv" aria-hidden="true">
-          <div class="slate">
-            <div class="stick top"></div>
-            <div class="stick bot"></div>
-            <div class="slate-body mono"><span>Scene 01</span><span>Take 01</span><span>Sidharth</span></div>
+          <div class="runner" id="runner" aria-hidden="false" role="img" aria-label="A tiny pixel camera operator running and jumping over tripods. Tap, click or press space to jump.">
+            <canvas id="run-c" width="640" height="225"></canvas>
+            <div class="run-hud mono"><span id="run-take">TAKE 01</span><span id="run-score">0000 FRAMES</span><span class="run-hint">TAP / SPACE TO JUMP</span></div>
           </div>
           <div class="wrapup" id="wrapup">That's a wrap.</div>
         </div>
@@ -1604,6 +1610,66 @@ html.no-motion { scroll-behavior: auto; }
       requestAnimationFrame(tick);
     })(0);
   }
+
+  /* pixel runner at the wrap-up: runs on its own, and anyone can take over by tapping or pressing space */
+  (function () {
+    var box = document.getElementById('runner'), c = document.getElementById('run-c');
+    if (!box || !c || reduce) return;
+    var ctx = c.getContext('2d'), W = c.width, H = c.height, G = H - 26;
+    var P = ['.....####.......', '....#....#......', '...##.##.#......', '...#..##.###....', '...##....#.##...', '....##..##.##...', '......##...#....', '.....####.......', '....##..##......', '...##....##.....', '...#......#.....', '...#......#.....', '...##....##.....', '....#....#......', '...##....##.....', '...#......#.....'];
+    var P2 = P.slice(0, 11).concat(['....#....#......', '...##....##.....', '....#.....#.....', '....##...##.....', '....#.....#.....']);
+    var PJ = P.slice(0, 11).concat(['...##....##.....', '....##..##......', '.....#..#.......', '.....#..#.......', '.....##.##......']);
+    var TRI = ['....#....', '...###...', '...#.#...', '..#.#.#..', '..#.#.#..', '.#..#..#.', '.#..#..#.', '#...#...#', '#...#...#'];
+    var CAN = ['.######.', '#......#', '#.####.#', '#.#..#.#', '#.####.#', '#......#', '.######.'];
+    var SPK = ['####', '#..#', '#..#', '####'];
+    var SC = 5, px, vy, onG, obs, t, speed, score, best = 0, take = 1, dead, auto = true, frame = 0, clouds, lastT = 0, acc = 0, ink, mute;
+    function colour() { var cs = getComputedStyle(document.documentElement); ink = cs.getPropertyValue('--fg').trim() || '#fff'; mute = cs.getPropertyValue('--muted').trim() || ink; }
+    function reset() { px = 0; vy = 0; onG = true; obs = []; t = 0; speed = 3.2; score = 0; dead = false; clouds = [{ x: 120, y: 24 }, { x: 420, y: 44 }, { x: 560, y: 18 }]; colour(); }
+    function draw(map, x, y, s, col) { ctx.fillStyle = col || ink; for (var r = 0; r < map.length; r++) for (var q = 0; q < map[r].length; q++) if (map[r][q] === '#') ctx.fillRect(Math.round(x + q * s), Math.round(y + r * s), s, s); }
+    function jump() { if (onG && !dead) { vy = -11; onG = false; } }
+    function spawn() { var k = Math.random() < 0.55 ? 'tri' : 'can'; var m = k === 'tri' ? TRI : CAN; var sc = k === 'tri' ? 4 : 4; obs.push({ k: k, x: W + 20, w: m[0].length * sc, h: m.length * sc, m: m, sc: sc }); }
+    function hit(a, b) { return a.x < b.x + b.w - 6 && a.x + a.w - 6 > b.x && a.y + a.h > b.y + 4; }
+    function step() {
+      t++; frame++;
+      speed = Math.min(8.5, 3.2 + score / 900);
+      vy += 0.5; px += vy; if (px > 0) { px = 0; vy = 0; onG = true; }
+      for (var i = obs.length - 1; i >= 0; i--) { obs[i].x -= speed; if (obs[i].x + obs[i].w < -10) obs.splice(i, 1); }
+      var last = obs[obs.length - 1];
+      if (!last || last.x < W - (240 + Math.random() * 220 + speed * 28)) spawn();
+      clouds.forEach(function (cl) { cl.x -= speed * 0.25; if (cl.x < -30) { cl.x = W + 20; cl.y = 10 + Math.random() * 50; } });
+      score += 1;
+      var hero = { x: 48 + 3 * SC, y: G - 16 * SC + px, w: 9 * SC, h: 16 * SC };
+      if (auto) { var nx = obs.filter(function (o) { return o.x + o.w > hero.x; })[0]; if (nx && onG && nx.x - (hero.x + hero.w) < speed * 10 + 6) jump(); }
+      for (var j = 0; j < obs.length; j++) { var o = obs[j]; if (hit(hero, { x: o.x, y: G - o.h, w: o.w, h: o.h })) { dead = true; best = Math.max(best, score); box.classList.add('is-hit'); setTimeout(function () { box.classList.remove('is-hit'); take++; reset(); }, 900); break; } }
+    }
+    function render() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = mute; ctx.globalAlpha = 0.55;
+      clouds.forEach(function (cl) { draw(SPK, cl.x, cl.y, 3, mute); });
+      ctx.globalAlpha = 1;
+      // ground: film-strip sprocket dashes
+      ctx.fillStyle = ink; ctx.fillRect(0, G + 1, W, 2);
+      var off = (t * speed) % 28; ctx.globalAlpha = 0.45;
+      for (var x = -off; x < W; x += 28) ctx.fillRect(x, G + 8, 10, 3);
+      ctx.globalAlpha = 1;
+      obs.forEach(function (o) { draw(o.m, o.x, G - o.h, o.sc); });
+      var sprite = !onG ? PJ : (dead ? P : (Math.floor(frame / 6) % 2 ? P : P2));
+      draw(sprite, 48, G - 16 * SC + px, SC);
+      if (dead) { ctx.fillStyle = ink; ctx.font = '700 22px ' + (getComputedStyle(document.body).getPropertyValue('--mono') || 'monospace'); ctx.textAlign = 'center'; ctx.fillText('CUT!', W / 2, 60); }
+      var sc = document.getElementById('run-score'), tk = document.getElementById('run-take');
+      if (sc) sc.textContent = ('0000' + Math.floor(score / 2)).slice(-4) + ' FRAMES' + (best ? ' · BEST ' + Math.floor(best / 2) : '');
+      if (tk) tk.textContent = 'TAKE ' + (take < 10 ? '0' : '') + take;
+    }
+    function seen() { var r = box.getBoundingClientRect(); return r.bottom > 0 && r.top < window.innerHeight && !document.hidden; }
+    function loop(now) {
+      if (seen()) { var dt = Math.min(64, now - (lastT || now)); acc += dt; while (acc >= 1000 / 60) { if (!dead) step(); acc -= 1000 / 60; } render(); }
+      lastT = now; requestAnimationFrame(loop);
+    }
+    function take_over() { if (auto) { auto = false; var h = box.querySelector('.run-hint'); if (h) h.textContent = 'YOU\'RE ROLLING'; } jump(); }
+    box.addEventListener('pointerdown', function (e) { e.preventDefault(); take_over(); });
+    window.addEventListener('keydown', function (e) { if ((e.code === 'Space' || e.code === 'ArrowUp') && seen() && !/input|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); take_over(); } });
+    reset(); requestAnimationFrame(loop);
+  })();
 
   /* folders */
   var folders = Array.prototype.slice.call(document.querySelectorAll('.folder'));
