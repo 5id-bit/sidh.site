@@ -637,6 +637,108 @@ html.no-motion { scroll-behavior: auto; }
   html.no-motion .folder, html.no-motion .f-paper, html.no-motion .f-front, html.no-motion .frame, html.no-motion .play, html.no-motion .cs-links a, html.no-motion .dcard { transition: none; }
   html.no-motion .d-bar::after { width: 40%; }
 
+/* ─── Phone layout (≤600px only). Everything above this width is untouched. ─── */
+@media (max-width: 600px) {
+  /* base type: a touch larger and looser for small screens */
+  body { font-size: 1.02rem; line-height: 1.55; }
+  .wrap { padding-inline: 1.1rem; }
+
+  /* header: bigger tap targets, nav spread across the width */
+  .bar { gap: 0.5rem 0.75rem; }
+  .mark { font-size: 1.5rem; padding-block: 0.3rem; }
+  .switch a { padding: 0.6rem 0.95rem; }
+  .subnav { gap: 0; justify-content: space-between; padding-bottom: 0; }
+  .subnav a { padding: 0.65rem 0.35rem; font-size: 0.74rem; }
+
+  /* hero: name fits the screen, text breathes, buttons fill the width */
+  .hero { padding-top: 2.75rem; padding-bottom: 2.5rem; }
+  .hero-grid { gap: 2.5rem; }
+  .vf .hud { font-size: 0.62rem; letter-spacing: 0.1em; }
+  .vf .hud.a, .vf .hud.c1 { left: 30px; }
+  .vf .hud.b, .vf .hud.d { right: 30px; }
+  h1 { font-size: clamp(3.6rem, 17.5vw, 5.4rem); line-height: 0.88; }
+  .sub { font-size: clamp(1.45rem, 6.2vw, 2rem); margin-top: 0.6rem; }
+  .pill { margin: 1.25rem 0 0.9rem; font-size: 0.72rem; }
+  .lede { font-size: 1.04rem; line-height: 1.55; }
+  .cta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 1.4rem; }
+  .cta .btn { justify-content: center; min-height: 3rem; padding: 0.8rem 0.7rem; font-size: 0.72rem; letter-spacing: 0.06em; text-align: center; }
+  .cta .btn:nth-child(3):last-child { grid-column: 1 / -1; }
+
+  /* deck of reels: scaled so all three cards stay inside the screen */
+  .deck { --cw: min(9.4rem, 36vw); --ch: calc(var(--cw) * 1.78); max-width: 100%; }
+  .dcard.a { transform: translateX(-54%) rotate(-8deg) scale(0.9); }
+  .dcard.c { transform: translateX(54%) rotate(8deg) scale(0.9); }
+  .deck:hover .a, .deck:focus-within .a { transform: translateX(-62%) rotate(-11deg) scale(0.93); }
+  .deck:hover .c, .deck:focus-within .c { transform: translateX(62%) rotate(11deg) scale(0.93); }
+
+  /* section headings and intros */
+  section { padding-block: 3.25rem; }
+  h2 { font-size: clamp(2.5rem, 11.5vw, 3.4rem); }
+  .sec-head { gap: 0.6rem; margin-bottom: 1.4rem; align-items: start; flex-direction: column; }
+  .sec-head p, .sec-head small, .sec-head .mono { max-width: none; }
+  .ticker { margin-inline: -1.1rem; width: calc(100% + 2.2rem); }
+
+  /* work folders */
+  .cabinet { column-gap: 0.8rem; row-gap: 1.4rem; }
+  .f-name { font-size: 1.05rem; }
+  .d-head { flex-direction: column; align-items: start; gap: 0.5rem; }
+  .d-head h3 { font-size: 2rem; }
+  .d-head p { font-size: 0.98rem; }
+
+  /* film strip: wider frames so titles read in one or two lines, more room for a thumb */
+  .reel { gap: 10px; padding: 28px 12px; min-width: max(100%, calc(var(--n, 1) * (12rem + 10px) + 16px)); }
+  .frame { width: 12rem; }
+  .f-title { font-size: 1.4rem; }
+  .f-title.fit { font-size: 1.15rem; }
+
+  /* about / experience */
+  .about-grid { gap: 1.75rem; }
+  .career { padding: 0.9rem 0.9rem 1rem; }
+  .seg b { font-size: 1.35rem; }
+  .exp { padding-left: 1.5rem; gap: 1rem; }
+  .exp::before { left: 5px; }
+  .exp > li { padding: 1rem 1rem 1.1rem; }
+  .exp > li::before { left: calc(-1.5rem + 1px); width: 10px; height: 10px; }
+  .exp h4 { font-size: 1.45rem; line-height: 1.02; }
+  .pts { gap: 0.6rem; }
+  .pts li { line-height: 1.5; }
+  .edu { grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+  .edu > div { padding: 0.9rem 0.9rem 1rem; }
+  .edu .yr { font-size: 2.2rem; }
+  .edu b { font-size: 0.95rem; }
+  .edu span.u { font-size: 0.82rem; }
+  .apps { grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+  .app { padding: 0.9rem 0.85rem 1rem; }
+  .app .tool-logo, .app svg { width: 2.8rem; height: 2.8rem; margin-bottom: 0.55rem; }
+  .app b { font-size: 1.15rem; }
+  .app span { font-size: 0.82rem; }
+
+  /* contact call sheet */
+  .cs-rec { flex-wrap: wrap; padding-inline: 1.1rem; font-size: 0.62rem; }
+  .cs-rec .cs-hud { flex: 1 0 100%; margin-left: 1.05rem; margin-top: -0.1rem; }
+  .cs-body { padding: 1.1rem; gap: 1.5rem; }
+  .cs-main { padding: 0.75rem 0.5rem; }
+  .cs-kicker { font-size: 0.7rem; }
+  .cs-main h2 { font-size: clamp(2.3rem, 11vw, 3.2rem); }
+  .contact-mail { font-size: clamp(1.25rem, 6.4vw, 1.9rem); overflow-wrap: anywhere; }
+  .cs-main .cta { grid-template-columns: 1fr 1fr; }
+  .brief { gap: 0.9rem; margin-top: 1.4rem; }
+  .brief .chips li { padding: 0.5rem 0.85rem; }
+  .cs-links a, .cs-links .static { padding: 0.95rem 1rem; min-height: 3.4rem; }
+  .cs-links li:nth-child(odd) a, .cs-links li:nth-child(odd) .static, .cs-links li:nth-child(even) a, .cs-links li:nth-child(even) .static { transform: none; }
+
+  /* every tappable thing at least ~44px tall */
+  .btn { min-height: 2.75rem; }
+  .folder { min-height: 3rem; }
+
+  /* CV page */
+  .cv-actions .btn { flex: 1 1 calc(50% - 0.5rem); justify-content: center; }
+  .sheet { padding: 1.1rem; gap: 1.5rem; }
+  .sheet .main h3 { font-size: clamp(2.6rem, 13vw, 3.6rem); }
+  .glance { gap: 0.55rem; }
+  .glance b { font-size: 1.9rem; }
+  .cv-skills { grid-template-columns: 1fr; gap: 0.9rem; }
+}
 </style>
 <script>
 /* new colours on every refresh: half the time a random hue ("auto"), otherwise one of the preset palettes.
