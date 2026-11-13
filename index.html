@@ -249,6 +249,22 @@ h1 {
   text-transform: uppercase;
 }
 @media (min-width: 960px) { h1 { font-size: clamp(6rem, 12.5vw, 10.5rem); } }
+/* hero text column reacts to the pointer: the name's letters ripple and split like a misregistered film print,
+   the subtitle catches a lens flare, and the whole column tilts a little toward the cursor */
+.hero-copy { transform-style: preserve-3d; transition: transform 0.35s ease-out; }
+@media (hover: hover) {
+  .hero-copy { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+  h1 { white-space: nowrap; }
+  h1 .ch { display: inline-block; transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4), text-shadow 0.3s; }
+  .hero-copy:hover h1 .ch { animation: chpop 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; animation-delay: calc(var(--i) * 45ms); text-shadow: -3px 0 0 color-mix(in srgb, var(--c-creatives) 70%, transparent), 3px 0 0 color-mix(in srgb, var(--c-podcast) 70%, transparent); }
+  h1 .ch:hover { transform: translateY(-0.08em) rotate(-4deg) scale(1.08); color: var(--c-ads); transition-duration: 0.18s; }
+  .hero-copy .sub { position: relative; background: linear-gradient(100deg, var(--fg) 42%, color-mix(in srgb, var(--c-ads) 80%, #fff) 50%, var(--fg) 58%) 100% 0 / 300% 100% no-repeat; -webkit-background-clip: text; background-clip: text; }
+  .hero-copy:hover .sub { color: transparent; animation: flare 1.1s ease-out 0.15s both; }
+  .hero-copy:hover .pill { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-mograph) 18%, transparent); }
+}
+@keyframes chpop { 0% { transform: translateY(0); } 30% { transform: translateY(-0.12em) skewX(-6deg); } 60% { transform: translateY(0.03em); } 100% { transform: translateY(0); } }
+@keyframes flare { from { background-position: 100% 0; } to { background-position: 0% 0; } }
+html.no-motion .hero-copy:hover h1 .ch, html.no-motion .hero-copy:hover .sub { animation: none; }
 .sub { margin: 0.7rem 0 0; font-family: var(--display); font-weight: 200; font-stretch: 100%; font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; }
 .pill { display: inline-flex; align-items: center; gap: 0.65rem; margin: 1.6rem 0 0.9rem; padding: 0.5rem 1rem 0.5rem 0.8rem; border: 1px solid color-mix(in srgb, var(--c-mograph) 65%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--c-mograph) 14%, var(--surface)); }
 .pill i { position: relative; width: 9px; height: 9px; border-radius: 50%; background: var(--c-mograph); }
@@ -841,7 +857,7 @@ html.no-motion { scroll-behavior: auto; }
       <div class="wrap hero">
         <p class="eyebrow mono">Video editor · Director of photography · Kochi</p>
         <div class="hero-grid">
-          <div>
+          <div class="hero-copy" id="hero-copy">
             <h1>Sidharth</h1>
             <p class="sub">Video editor + DOP</p>
             <p class="pill mono"><i></i>Available for freelance work</p>
@@ -1669,6 +1685,17 @@ html.no-motion { scroll-behavior: auto; }
     box.addEventListener('pointerdown', function (e) { e.preventDefault(); take_over(); });
     window.addEventListener('keydown', function (e) { if ((e.code === 'Space' || e.code === 'ArrowUp') && seen() && !/input|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); take_over(); } });
     reset(); requestAnimationFrame(loop);
+  })();
+
+  /* hero name split into letters, and a gentle 3-D tilt of the text column toward the pointer */
+  (function () {
+    var col = document.getElementById('hero-copy'), h1 = col && col.querySelector('h1');
+    if (!h1 || reduce) return;
+    var txt = h1.textContent; h1.setAttribute('aria-label', txt); h1.textContent = '';
+    Array.prototype.forEach.call(txt, function (ch, i) { var sp = document.createElement('span'); sp.className = 'ch'; sp.setAttribute('aria-hidden', 'true'); sp.style.setProperty('--i', i); sp.textContent = ch; h1.appendChild(sp); });
+    if (!window.matchMedia('(hover: hover)').matches) return;
+    col.addEventListener('pointermove', function (e) { var r = col.getBoundingClientRect(); var x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; col.style.setProperty('--ry', (x * 6).toFixed(2) + 'deg'); col.style.setProperty('--rx', (-y * 5).toFixed(2) + 'deg'); });
+    col.addEventListener('pointerleave', function () { col.style.setProperty('--ry', '0deg'); col.style.setProperty('--rx', '0deg'); });
   })();
 
   /* folders */
