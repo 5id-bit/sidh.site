@@ -582,28 +582,8 @@ html.no-motion .flip-in, html.no-motion .cs-rec .dot { animation: none; }
 .cs-links .v { display: block; font-weight: 500; overflow-wrap: anywhere; }
 .wrapup-wrap { overflow: hidden; margin-top: clamp(1.5rem, 5vw, 3.5rem); }
 /* clapperboard: the top stick snaps shut as it scrolls into view */
-.slate { width: min(100%, 17rem); margin-bottom: 1.1rem; padding-top: 4.4rem; }
-/* film countdown leader: plays once when it scrolls into view, then the wrap title stamps in */
-.leader { position: relative; width: min(100%, 17rem); aspect-ratio: 1; margin-bottom: 1.1rem; }
-.leader-film { position: absolute; inset: 0; background: var(--surface-2); border: 2px solid var(--fg); overflow: hidden; }
-.leader-film::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0, 0, 0, 0.06) 3px 4px); pointer-events: none; }
-.leader-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.ld-ring { fill: none; stroke: var(--fg); stroke-width: 3; }
-.ld-ring.thin { stroke-width: 1.5; opacity: 0.6; }
-.ld-x { stroke: var(--fg); stroke-width: 1.5; opacity: 0.6; }
-.ld-sweep { fill: var(--fg); opacity: 0.16; }
-.ld-num { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 96px; fill: var(--fg); }
-.ld-tag { position: absolute; font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg); opacity: 0.75; }
-.ld-tag.tl { left: 0.5rem; top: 0.4rem; } .ld-tag.tr { right: 0.5rem; top: 0.4rem; } .ld-tag.bl { left: 0.5rem; bottom: 0.4rem; } .ld-tag.br { right: 0.5rem; bottom: 0.4rem; }
-.leader.is-done .leader-film { animation: ldout 0.5s ease-in forwards; }
-@keyframes ldout { to { opacity: 0; transform: scale(0.96); } }
-.leader-flash { position: fixed; inset: 0; z-index: 60; background: #fff; opacity: 0; pointer-events: none; }
-.leader.is-flash .leader-flash { animation: ldflash 0.7s ease-out; }
-@keyframes ldflash { 0% { opacity: 0; } 12% { opacity: 0.9; } 100% { opacity: 0; } }
-.leader.is-done { aspect-ratio: auto; height: 0; margin-bottom: 0; overflow: hidden; transition: height 0.6s ease 0.4s, margin 0.6s ease 0.4s; }
 .wrapup.stamp { animation: stamp 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
 @keyframes stamp { 0% { opacity: 0; transform: scale(1.35) rotate(-3deg); filter: blur(6px); } 55% { opacity: 1; transform: scale(0.97) rotate(0.5deg); filter: blur(0); } 100% { transform: scale(1) rotate(0); } }
-html.no-motion .leader { display: none; }
 .stick { height: 1.15rem; border: 2px solid var(--fg); background: repeating-linear-gradient(115deg, var(--fg) 0 1.1rem, var(--bg) 1.1rem 2.2rem); }
 .stick.top { border-bottom-width: 1px; transform-origin: 0 100%; transition: transform 0.22s cubic-bezier(0.6, 0, 0.9, 0.5) 0.7s; }
 .stick.bot { border-top-width: 1px; background: repeating-linear-gradient(115deg, var(--bg) 0 1.1rem, var(--fg) 1.1rem 2.2rem); }
@@ -1116,19 +1096,6 @@ html.no-motion { scroll-behavior: auto; }
           </div>
         </div>
         <div class="wrapup-wrap rv" aria-hidden="true">
-          <div class="leader" id="leader" aria-hidden="true">
-            <div class="leader-film">
-              <svg class="leader-svg" viewBox="0 0 200 200">
-                <circle class="ld-ring" cx="100" cy="100" r="92"/>
-                <circle class="ld-ring thin" cx="100" cy="100" r="74"/>
-                <line class="ld-x" x1="100" y1="0" x2="100" y2="200"/><line class="ld-x" x1="0" y1="100" x2="200" y2="100"/>
-                <path class="ld-sweep" id="ld-sweep" d="M100 100 L100 8 A92 92 0 0 1 100 8 Z"/>
-                <text class="ld-num" id="ld-num" x="100" y="132" text-anchor="middle">5</text>
-              </svg>
-              <span class="ld-tag mono tl">Picture start</span><span class="ld-tag mono tr">Reel 01</span><span class="ld-tag mono bl" id="ld-tc">00:00:00:00</span><span class="ld-tag mono br">Sidharth</span>
-            </div>
-            <div class="leader-flash"></div>
-          </div>
           <div class="wrapup" id="wrapup">That's a wrap.</div>
         </div>
       </div>
@@ -1650,31 +1617,13 @@ html.no-motion { scroll-behavior: auto; }
     })(0);
   }
 
-  /* countdown leader: 5 to 1 with a sweeping wipe, a film-burn flash, then the wrap title stamps in */
+  /* the wrap title stamps in the first time it scrolls into view */
   (function () {
-    var ld = document.getElementById('leader'), num = document.getElementById('ld-num'), sw = document.getElementById('ld-sweep'), tc = document.getElementById('ld-tc'), wrap = document.getElementById('wrapup');
-    if (!ld || !num || !sw || reduce) return;
-    var started = false;
-    function arc(frac) { var a = frac * Math.PI * 2 - Math.PI / 2, x = 100 + 92 * Math.cos(a), y = 100 + 92 * Math.sin(a), big = frac > 0.5 ? 1 : 0; sw.setAttribute('d', 'M100 100 L100 8 A92 92 0 ' + big + ' 1 ' + x.toFixed(1) + ' ' + y.toFixed(1) + ' Z'); }
-    function run() {
-      started = true;
-      var n = 5, t0 = performance.now(), per = 900;
-      (function frame(now) {
-        var el = now - t0, i = Math.floor(el / per), frac = (el % per) / per;
-        if (i >= 5) {
-          arc(1); num.textContent = '';
-          ld.classList.add('is-flash'); if (wrap) { wrap.style.opacity = ''; wrap.classList.add('stamp'); }
-          setTimeout(function () { ld.classList.add('is-done'); }, 450);
-          return;
-        }
-        num.textContent = String(n - i); arc(frac);
-        if (tc) { var f = Math.floor(el / 1000 * 24); tc.textContent = '00:00:' + (Math.floor(f / 24) < 10 ? '0' : '') + Math.floor(f / 24) + ':' + (f % 24 < 10 ? '0' : '') + (f % 24); }
-        requestAnimationFrame(frame);
-      })(t0);
-    }
-    if (wrap) wrap.style.opacity = '0';
-    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !started) { io.disconnect(); run(); } }); }, { threshold: 0.5 });
-    io.observe(ld);
+    var wrap = document.getElementById('wrapup');
+    if (!wrap || reduce || !('IntersectionObserver' in window)) return;
+    wrap.style.opacity = '0';
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { io.disconnect(); wrap.style.opacity = ''; wrap.classList.add('stamp'); } }); }, { threshold: 0.4 });
+    io.observe(wrap);
   })();
 
   /* folders */
