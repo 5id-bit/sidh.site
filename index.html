@@ -168,7 +168,6 @@ a { color: inherit; }
 .brk { order: 3; flex: 0 0 100%; height: 0; }
 .subnav { order: 4; flex: 1 1 0; min-width: 0; display: flex; gap: 1.4rem; overflow-x: auto; padding-bottom: 0.15rem; }
 .subnav[hidden] { display: none; }
-.pal { order: 5; margin-left: auto; }
 .subnav a { text-decoration: none; color: var(--muted); padding-block: 0.25rem; white-space: nowrap; }
 .subnav a:hover { color: var(--fg); }
 @media (min-width: 860px) {
@@ -706,15 +705,6 @@ html.no-motion { scroll-behavior: auto; }
       <a href="#experience">Experience</a>
       <a href="#contact">Contact</a>
     </nav>
-    <div class="pal" role="group" aria-label="Colour palette">
-      <button type="button" class="sw-pal sw-auto" data-pal="auto" aria-pressed="true" aria-label="Surprise me, new random colours" title="Surprise me, new random colours"></button>
-        <button type="button" class="sw-pal" data-pal="studio" aria-pressed="false" aria-label="Studio palette" title="Studio" style="--a:#8e7cff;--b:#0f1316"></button>
-      <button type="button" class="sw-pal" data-pal="sunset" aria-pressed="false" aria-label="Sunset palette" title="Sunset" style="--a:#ff7a59;--b:#161010"></button>
-      <button type="button" class="sw-pal" data-pal="ocean" aria-pressed="false" aria-label="Ocean palette" title="Ocean" style="--a:#4da3ff;--b:#0a111b"></button>
-      <button type="button" class="sw-pal" data-pal="forest" aria-pressed="false" aria-label="Forest palette" title="Forest" style="--a:#9ad66a;--b:#0e1410"></button>
-      <button type="button" class="sw-pal" data-pal="candy" aria-pressed="false" aria-label="Candy palette" title="Candy" style="--a:#ff8ad8;--b:#150f1a"></button>
-      <button type="button" class="sw-pal" data-pal="noir" aria-pressed="false" aria-label="Noir palette" title="Noir" style="--a:#ff5252;--b:#0b0b0c"></button>
-    </div>
     <div class="progress" aria-hidden="true"><i id="prog"></i></div>
   </div>
 </header>
@@ -1106,20 +1096,7 @@ html.no-motion { scroll-behavior: auto; }
   }
   var HOUR = 3600 * 24; /* sequences conventionally start at 01:00:00:00 */
 
-  /* palettes */
-  var KEY = 'sidh-last-pal';
-  var pals = Array.prototype.slice.call(document.querySelectorAll('.sw-pal'));
-  var names = pals.map(function (b) { return b.getAttribute('data-pal'); });
-  function setPal(name, fresh) {
-    if (names.indexOf(name) < 0) name = 'studio';
-    if (name === 'auto' && fresh && window.sidhRehue) window.sidhRehue();
-    if (name === 'studio') root.removeAttribute('data-palette');
-    else root.setAttribute('data-palette', name);
-    pals.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-pal') === name ? 'true' : 'false'); });
-    try { localStorage.setItem(KEY, name); } catch (e) {}
-  }
-  pals.forEach(function (b) { b.addEventListener('click', function () { setPal(b.getAttribute('data-pal'), true); }); });
-  setPal(window.__pal || 'studio');
+  /* palettes: chosen at random in the head script on every visit; there is no picker any more */
 
   /* current month and year on the timeline */
   var td = document.getElementById('today');
