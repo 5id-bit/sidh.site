@@ -583,7 +583,7 @@ html.no-motion .flip-in, html.no-motion .cs-rec .dot { animation: none; }
 .wrapup-wrap { overflow: hidden; margin-top: clamp(1.5rem, 5vw, 3.5rem); }
 /* clapperboard: the top stick snaps shut as it scrolls into view */
 .slate { width: min(100%, 17rem); margin-bottom: 1.1rem; padding-top: 4.4rem; }
-/* pixel runner: an original little camera operator hurdling tripods and film cans */
+/* pixel runner: an original little dinosaur hurdling tripods and film cans */
 .runner { position: relative; width: min(100%, 40rem); margin-bottom: 1.1rem; border-bottom: 2px solid var(--fg); cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
 .runner canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
 .run-hud { position: absolute; left: 0; right: 0; top: 0; display: flex; gap: 1.2rem; padding: 0.4rem 0.2rem; font-size: 0.64rem; letter-spacing: 0.14em; color: var(--muted); pointer-events: none; }
@@ -1102,7 +1102,7 @@ html.no-motion { scroll-behavior: auto; }
           </div>
         </div>
         <div class="wrapup-wrap rv" aria-hidden="true">
-          <div class="runner" id="runner" aria-hidden="false" role="img" aria-label="A tiny pixel camera operator running and jumping over tripods. Tap, click or press space to jump.">
+          <div class="runner" id="runner" aria-hidden="false" role="img" aria-label="A tiny pixel dinosaur running and jumping over tripods and film cans. Tap, click or press space to jump.">
             <canvas id="run-c" width="640" height="225"></canvas>
             <div class="run-hud mono"><span id="run-take">TAKE 01</span><span id="run-score">0000 FRAMES</span><span class="run-hint">TAP / SPACE TO JUMP</span></div>
           </div>
@@ -1632,17 +1632,17 @@ html.no-motion { scroll-behavior: auto; }
     var box = document.getElementById('runner'), c = document.getElementById('run-c');
     if (!box || !c || reduce) return;
     var ctx = c.getContext('2d'), W = c.width, H = c.height, G = H - 26;
-    var P = ['.....####.......', '....#....#......', '...##.##.#......', '...#..##.###....', '...##....#.##...', '....##..##.##...', '......##...#....', '.....####.......', '....##..##......', '...##....##.....', '...#......#.....', '...#......#.....', '...##....##.....', '....#....#......', '...##....##.....', '...#......#.....'];
-    var P2 = P.slice(0, 11).concat(['....#....#......', '...##....##.....', '....#.....#.....', '....##...##.....', '....#.....#.....']);
-    var PJ = P.slice(0, 11).concat(['...##....##.....', '....##..##......', '.....#..#.......', '.....#..#.......', '.....##.##......']);
+    var P = ['.........#..#..#........','........###.###.###.....','.......#############....','.....###############....','....################..##','...################.####','..#################.#.##','.#.################.####','#...###############.###.','.....#############......','......####....####......','......###......###......','......###......###......','.....###........###.....','.....###........###.....','....####........####....'];
+    var P2 = ['.........#..#..#........','........###.###.###.....','.......#############....','.....###############....','....################..##','...################.####','..#################.#.##','.#.################.####','#...###############.###.','.....#############......','......####....####......','.......###....###.......','.......###....###.......','.......###....###.......','......####....####......','......####....####......'];
+    var PJ = ['.........#..#..#........','........###.###.###.....','.......#############....','.....###############....','....################..##','...################.####','..#################.#.##','.#.################.####','#...###############.###.','.....#############......','......####....####......','......####....####......','.......###....###.......','........##....##........','........##....##........','........##....##........'];
     var TRI = ['....#....', '...###...', '...#.#...', '..#.#.#..', '..#.#.#..', '.#..#..#.', '.#..#..#.', '#...#...#', '#...#...#'];
     var CAN = ['.######.', '#......#', '#.####.#', '#.#..#.#', '#.####.#', '#......#', '.######.'];
     var SPK = ['####', '#..#', '#..#', '####'];
-    var SC = 5, px, vy, onG, obs, t, speed, score, best = 0, take = 1, dead, auto = true, frame = 0, clouds, lastT = 0, acc = 0, ink, mute;
+    var SC = 4, px, vy, onG, obs, t, speed, score, best = 0, take = 1, dead, auto = true, frame = 0, clouds, lastT = 0, acc = 0, ink, mute;
     function colour() { var cs = getComputedStyle(document.documentElement); ink = cs.getPropertyValue('--fg').trim() || '#fff'; mute = cs.getPropertyValue('--muted').trim() || ink; }
     function reset() { px = 0; vy = 0; onG = true; obs = []; t = 0; speed = 3.2; score = 0; dead = false; clouds = [{ x: 120, y: 24 }, { x: 420, y: 44 }, { x: 560, y: 18 }]; colour(); }
     function draw(map, x, y, s, col) { ctx.fillStyle = col || ink; for (var r = 0; r < map.length; r++) for (var q = 0; q < map[r].length; q++) if (map[r][q] === '#') ctx.fillRect(Math.round(x + q * s), Math.round(y + r * s), s, s); }
-    function jump() { if (onG && !dead) { vy = -11; onG = false; } }
+    function jump() { if (onG && !dead) { vy = -11.4; onG = false; } }
     function spawn() { var k = Math.random() < 0.55 ? 'tri' : 'can'; var m = k === 'tri' ? TRI : CAN; var sc = k === 'tri' ? 4 : 4; obs.push({ k: k, x: W + 20, w: m[0].length * sc, h: m.length * sc, m: m, sc: sc }); }
     function hit(a, b) { return a.x < b.x + b.w - 6 && a.x + a.w - 6 > b.x && a.y + a.h > b.y + 4; }
     function step() {
@@ -1654,8 +1654,8 @@ html.no-motion { scroll-behavior: auto; }
       if (!last || last.x < W - (240 + Math.random() * 220 + speed * 28)) spawn();
       clouds.forEach(function (cl) { cl.x -= speed * 0.25; if (cl.x < -30) { cl.x = W + 20; cl.y = 10 + Math.random() * 50; } });
       score += 1;
-      var hero = { x: 48 + 3 * SC, y: G - 16 * SC + px, w: 9 * SC, h: 16 * SC };
-      if (auto) { var nx = obs.filter(function (o) { return o.x + o.w > hero.x; })[0]; if (nx && onG && nx.x - (hero.x + hero.w) < speed * 10 + 6) jump(); }
+      var hero = { x: 48 + 4 * SC, y: G - 16 * SC + px, w: 15 * SC, h: 16 * SC };
+      if (auto) { var nx = obs.filter(function (o) { return o.x + o.w > hero.x; })[0]; if (nx && onG && nx.x - (hero.x + hero.w) < speed * 7 + 4) jump(); }
       for (var j = 0; j < obs.length; j++) { var o = obs[j]; if (hit(hero, { x: o.x, y: G - o.h, w: o.w, h: o.h })) { dead = true; best = Math.max(best, score); box.classList.add('is-hit'); setTimeout(function () { box.classList.remove('is-hit'); take++; reset(); }, 900); break; } }
     }
     function render() {
