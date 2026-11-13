@@ -583,13 +583,27 @@ html.no-motion .flip-in, html.no-motion .cs-rec .dot { animation: none; }
 .wrapup-wrap { overflow: hidden; margin-top: clamp(1.5rem, 5vw, 3.5rem); }
 /* clapperboard: the top stick snaps shut as it scrolls into view */
 .slate { width: min(100%, 17rem); margin-bottom: 1.1rem; padding-top: 4.4rem; }
-/* pixel runner: an original little dinosaur hurdling tripods and film cans */
-.runner { position: relative; width: min(100%, 40rem); margin-bottom: 1.1rem; border-bottom: 2px solid var(--fg); cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
-.runner canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
-.run-hud { position: absolute; left: 0; right: 0; top: 0; display: flex; gap: 1.2rem; padding: 0.4rem 0.2rem; font-size: 0.64rem; letter-spacing: 0.14em; color: var(--muted); pointer-events: none; }
-.run-hud .run-hint { margin-left: auto; }
-.runner.is-hit canvas { animation: runhit 0.35s steps(2) 2; }
-@keyframes runhit { 50% { opacity: 0.25; } }
+/* film countdown leader: plays once when it scrolls into view, then the wrap title stamps in */
+.leader { position: relative; width: min(100%, 17rem); aspect-ratio: 1; margin-bottom: 1.1rem; }
+.leader-film { position: absolute; inset: 0; background: var(--surface-2); border: 2px solid var(--fg); overflow: hidden; }
+.leader-film::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0, 0, 0, 0.06) 3px 4px); pointer-events: none; }
+.leader-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ld-ring { fill: none; stroke: var(--fg); stroke-width: 3; }
+.ld-ring.thin { stroke-width: 1.5; opacity: 0.6; }
+.ld-x { stroke: var(--fg); stroke-width: 1.5; opacity: 0.6; }
+.ld-sweep { fill: var(--fg); opacity: 0.16; }
+.ld-num { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 96px; fill: var(--fg); }
+.ld-tag { position: absolute; font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg); opacity: 0.75; }
+.ld-tag.tl { left: 0.5rem; top: 0.4rem; } .ld-tag.tr { right: 0.5rem; top: 0.4rem; } .ld-tag.bl { left: 0.5rem; bottom: 0.4rem; } .ld-tag.br { right: 0.5rem; bottom: 0.4rem; }
+.leader.is-done .leader-film { animation: ldout 0.5s ease-in forwards; }
+@keyframes ldout { to { opacity: 0; transform: scale(0.96); } }
+.leader-flash { position: fixed; inset: 0; z-index: 60; background: #fff; opacity: 0; pointer-events: none; }
+.leader.is-flash .leader-flash { animation: ldflash 0.7s ease-out; }
+@keyframes ldflash { 0% { opacity: 0; } 12% { opacity: 0.9; } 100% { opacity: 0; } }
+.leader.is-done { aspect-ratio: auto; height: 0; margin-bottom: 0; overflow: hidden; transition: height 0.6s ease 0.4s, margin 0.6s ease 0.4s; }
+.wrapup.stamp { animation: stamp 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+@keyframes stamp { 0% { opacity: 0; transform: scale(1.35) rotate(-3deg); filter: blur(6px); } 55% { opacity: 1; transform: scale(0.97) rotate(0.5deg); filter: blur(0); } 100% { transform: scale(1) rotate(0); } }
+html.no-motion .leader { display: none; }
 .stick { height: 1.15rem; border: 2px solid var(--fg); background: repeating-linear-gradient(115deg, var(--fg) 0 1.1rem, var(--bg) 1.1rem 2.2rem); }
 .stick.top { border-bottom-width: 1px; transform-origin: 0 100%; transition: transform 0.22s cubic-bezier(0.6, 0, 0.9, 0.5) 0.7s; }
 .stick.bot { border-top-width: 1px; background: repeating-linear-gradient(115deg, var(--bg) 0 1.1rem, var(--fg) 1.1rem 2.2rem); }
@@ -1102,9 +1116,18 @@ html.no-motion { scroll-behavior: auto; }
           </div>
         </div>
         <div class="wrapup-wrap rv" aria-hidden="true">
-          <div class="runner" id="runner" aria-hidden="false" role="img" aria-label="A tiny pixel dinosaur running and jumping over tripods and film cans. Tap, click or press space to jump.">
-            <canvas id="run-c" width="640" height="225"></canvas>
-            <div class="run-hud mono"><span id="run-take">TAKE 01</span><span id="run-score">0000 FRAMES</span><span class="run-hint">TAP / SPACE TO JUMP</span></div>
+          <div class="leader" id="leader" aria-hidden="true">
+            <div class="leader-film">
+              <svg class="leader-svg" viewBox="0 0 200 200">
+                <circle class="ld-ring" cx="100" cy="100" r="92"/>
+                <circle class="ld-ring thin" cx="100" cy="100" r="74"/>
+                <line class="ld-x" x1="100" y1="0" x2="100" y2="200"/><line class="ld-x" x1="0" y1="100" x2="200" y2="100"/>
+                <path class="ld-sweep" id="ld-sweep" d="M100 100 L100 8 A92 92 0 0 1 100 8 Z"/>
+                <text class="ld-num" id="ld-num" x="100" y="132" text-anchor="middle">5</text>
+              </svg>
+              <span class="ld-tag mono tl">Picture start</span><span class="ld-tag mono tr">Reel 01</span><span class="ld-tag mono bl" id="ld-tc">00:00:00:00</span><span class="ld-tag mono br">Sidharth</span>
+            </div>
+            <div class="leader-flash"></div>
           </div>
           <div class="wrapup" id="wrapup">That's a wrap.</div>
         </div>
@@ -1627,75 +1650,31 @@ html.no-motion { scroll-behavior: auto; }
     })(0);
   }
 
-  /* pixel runner at the wrap-up: runs on its own, and anyone can take over by tapping or pressing space */
+  /* countdown leader: 5 to 1 with a sweeping wipe, a film-burn flash, then the wrap title stamps in */
   (function () {
-    var box = document.getElementById('runner'), c = document.getElementById('run-c');
-    if (!box || !c || reduce) return;
-    var ctx = c.getContext('2d'), W = c.width, H = c.height, G = H - 26;
-    var P = ['.............#####......','...........#########....','..........####..######..','..........####..######..','..........############..','..........###########...','...........#######......','.....###...#######......','...#####.###########.##.','..##################.#..','..####################..','.######################.','.######################.','..####################..','...#####.#######.####...','....###...#####...##....'];
-    var P2 = ['.............#####......','...........#########....','..........####..######..','..........####..######..','..........############..','..........###########...','...........#######......','.....###...#######......','...#####.###########.##.','..##################.#..','..####################..','.######################.','.######################.','..####################..','....####...#####..###...','.....###..#####...###...'];
-    var PJ = ['.............#####......','...........#########....','..........####..######..','..........####..######..','..........############..','..........###########...','...........#######......','.....###...#######......','...#####.###########.##.','..##################.#..','..####################..','.######################.','.######################.','..####################..','....####....####........','.....###....###.........'];
-    var TRI = ['....#....', '...###...', '...#.#...', '..#.#.#..', '..#.#.#..', '.#..#..#.', '.#..#..#.', '#...#...#', '#...#...#'];
-    var CAN = ['.######.', '#......#', '#.####.#', '#.#..#.#', '#.####.#', '#......#', '.######.'];
-    var SPK = ['####', '#..#', '#..#', '####'];
-    var SC = 4, px, vy, onG, obs, t, speed, score, best = 0, take = 1, dead, auto = true, frame = 0, clouds, lastT = 0, acc = 0, ink, mute;
-    function colour() { var cs = getComputedStyle(document.documentElement); ink = cs.getPropertyValue('--fg').trim() || '#fff'; mute = cs.getPropertyValue('--muted').trim() || ink; }
-    function reset() { px = 0; vy = 0; onG = true; obs = []; t = 0; speed = 3.2; score = 0; dead = false; clouds = [{ x: 120, y: 24 }, { x: 420, y: 44 }, { x: 560, y: 18 }]; colour(); }
-    function draw(map, x, y, s, col) { ctx.fillStyle = col || ink; for (var r = 0; r < map.length; r++) for (var q = 0; q < map[r].length; q++) if (map[r][q] === '#') ctx.fillRect(Math.round(x + q * s), Math.round(y + r * s), s, s); }
-    function jump() { if (onG && !dead) { vy = -11.4; onG = false; } }
-    function spawn() { var k = Math.random() < 0.55 ? 'tri' : 'can'; var m = k === 'tri' ? TRI : CAN; var sc = k === 'tri' ? 4 : 4; obs.push({ k: k, x: W + 20, w: m[0].length * sc, h: m.length * sc, m: m, sc: sc }); }
-    function hit(a, b) { return a.x < b.x + b.w - 6 && a.x + a.w - 6 > b.x && a.y + a.h > b.y + 4; }
-    function step() {
-      t++; frame++;
-      speed = Math.min(8.5, 3.2 + score / 900);
-      vy += 0.5; px += vy; if (px > 0) { px = 0; vy = 0; onG = true; }
-      for (var i = obs.length - 1; i >= 0; i--) { obs[i].x -= speed; if (obs[i].x + obs[i].w < -10) obs.splice(i, 1); }
-      var last = obs[obs.length - 1];
-      if (!last || last.x < W - (240 + Math.random() * 220 + speed * 28)) spawn();
-      clouds.forEach(function (cl) { cl.x -= speed * 0.25; if (cl.x < -30) { cl.x = W + 20; cl.y = 10 + Math.random() * 50; } });
-      score += 1;
-      var hero = { x: 48 + 3 * SC, y: G - 16 * SC + px, w: 18 * SC, h: 16 * SC };
-      if (auto) { var nx = obs.filter(function (o) { return o.x + o.w > hero.x; })[0]; if (nx && onG && nx.x - (hero.x + hero.w) < speed * 7 + 4) jump(); }
-      for (var j = 0; j < obs.length; j++) { var o = obs[j]; if (hit(hero, { x: o.x, y: G - o.h, w: o.w, h: o.h })) { dead = true; best = Math.max(best, score); box.classList.add('is-hit'); setTimeout(function () { box.classList.remove('is-hit'); take++; reset(); }, 900); break; } }
+    var ld = document.getElementById('leader'), num = document.getElementById('ld-num'), sw = document.getElementById('ld-sweep'), tc = document.getElementById('ld-tc'), wrap = document.getElementById('wrapup');
+    if (!ld || !num || !sw || reduce) return;
+    var started = false;
+    function arc(frac) { var a = frac * Math.PI * 2 - Math.PI / 2, x = 100 + 92 * Math.cos(a), y = 100 + 92 * Math.sin(a), big = frac > 0.5 ? 1 : 0; sw.setAttribute('d', 'M100 100 L100 8 A92 92 0 ' + big + ' 1 ' + x.toFixed(1) + ' ' + y.toFixed(1) + ' Z'); }
+    function run() {
+      started = true;
+      var n = 5, t0 = performance.now(), per = 900;
+      (function frame(now) {
+        var el = now - t0, i = Math.floor(el / per), frac = (el % per) / per;
+        if (i >= 5) {
+          arc(1); num.textContent = '';
+          ld.classList.add('is-flash'); if (wrap) { wrap.style.opacity = ''; wrap.classList.add('stamp'); }
+          setTimeout(function () { ld.classList.add('is-done'); }, 450);
+          return;
+        }
+        num.textContent = String(n - i); arc(frac);
+        if (tc) { var f = Math.floor(el / 1000 * 24); tc.textContent = '00:00:' + (Math.floor(f / 24) < 10 ? '0' : '') + Math.floor(f / 24) + ':' + (f % 24 < 10 ? '0' : '') + (f % 24); }
+        requestAnimationFrame(frame);
+      })(t0);
     }
-    function render() {
-      ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = mute; ctx.globalAlpha = 0.55;
-      clouds.forEach(function (cl) { draw(SPK, cl.x, cl.y, 3, mute); });
-      ctx.globalAlpha = 1;
-      // ground: film-strip sprocket dashes
-      ctx.fillStyle = ink; ctx.fillRect(0, G + 1, W, 2);
-      var off = (t * speed) % 28; ctx.globalAlpha = 0.45;
-      for (var x = -off; x < W; x += 28) ctx.fillRect(x, G + 8, 10, 3);
-      ctx.globalAlpha = 1;
-      obs.forEach(function (o) { draw(o.m, o.x, G - o.h, o.sc); });
-      var sprite = !onG ? PJ : (dead ? P : (Math.floor(frame / 6) % 2 ? P : P2));
-      draw(sprite, 48, G - 16 * SC + px, SC);
-      if (dead) { ctx.fillStyle = ink; ctx.font = '700 22px ' + (getComputedStyle(document.body).getPropertyValue('--mono') || 'monospace'); ctx.textAlign = 'center'; ctx.fillText('CUT!', W / 2, 60); }
-      var sc = document.getElementById('run-score'), tk = document.getElementById('run-take');
-      if (sc) sc.textContent = ('0000' + Math.floor(score / 2)).slice(-4) + ' FRAMES' + (best ? ' · BEST ' + Math.floor(best / 2) : '');
-      if (tk) tk.textContent = 'TAKE ' + (take < 10 ? '0' : '') + take;
-    }
-    function seen() { var r = box.getBoundingClientRect(); return r.bottom > 0 && r.top < window.innerHeight && !document.hidden; }
-    function loop(now) {
-      if (seen()) { var dt = Math.min(64, now - (lastT || now)); acc += dt; while (acc >= 1000 / 60) { if (!dead) step(); acc -= 1000 / 60; } render(); }
-      lastT = now; requestAnimationFrame(loop);
-    }
-    function take_over() { if (auto) { auto = false; var h = box.querySelector('.run-hint'); if (h) h.textContent = 'YOU\'RE ROLLING'; } jump(); }
-    box.addEventListener('pointerdown', function (e) { e.preventDefault(); take_over(); });
-    window.addEventListener('keydown', function (e) { if ((e.code === 'Space' || e.code === 'ArrowUp') && seen() && !/input|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); take_over(); } });
-    reset(); requestAnimationFrame(loop);
-  })();
-
-  /* hero name split into letters, and a gentle 3-D tilt of the text column toward the pointer */
-  (function () {
-    var col = document.getElementById('hero-copy'), h1 = col && col.querySelector('h1');
-    if (!h1 || reduce) return;
-    var txt = h1.textContent; h1.setAttribute('aria-label', txt); h1.textContent = '';
-    Array.prototype.forEach.call(txt, function (ch, i) { var sp = document.createElement('span'); sp.className = 'ch'; sp.setAttribute('aria-hidden', 'true'); sp.style.setProperty('--i', i); sp.textContent = ch; h1.appendChild(sp); });
-    if (!window.matchMedia('(hover: hover)').matches) return;
-    col.addEventListener('pointermove', function (e) { var r = col.getBoundingClientRect(); var x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; col.style.setProperty('--ry', (x * 6).toFixed(2) + 'deg'); col.style.setProperty('--rx', (-y * 5).toFixed(2) + 'deg'); });
-    col.addEventListener('pointerleave', function () { col.style.setProperty('--ry', '0deg'); col.style.setProperty('--rx', '0deg'); });
+    if (wrap) wrap.style.opacity = '0';
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !started) { io.disconnect(); run(); } }); }, { threshold: 0.5 });
+    io.observe(ld);
   })();
 
   /* folders */
