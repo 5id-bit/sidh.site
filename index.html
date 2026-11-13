@@ -249,22 +249,21 @@ h1 {
   text-transform: uppercase;
 }
 @media (min-width: 960px) { h1 { font-size: clamp(6rem, 12.5vw, 10.5rem); } }
-/* hero text column reacts to the pointer: the name's letters ripple and split like a misregistered film print,
-   the subtitle catches a lens flare, and the whole column tilts a little toward the cursor */
-.hero-copy { transform-style: preserve-3d; transition: transform 0.35s ease-out; }
+/* hero text column: the letters of the name are magnetic, drifting toward the pointer, and a soft studio
+   spotlight follows the cursor across the block; the outline-only name fills in solid where the light falls */
+.hero-copy { position: relative; }
 @media (hover: hover) {
-  .hero-copy { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
   h1 { white-space: nowrap; }
-  h1 .ch { display: inline-block; transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4), text-shadow 0.3s; }
-  .hero-copy:hover h1 .ch { animation: chpop 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; animation-delay: calc(var(--i) * 45ms); text-shadow: -3px 0 0 color-mix(in srgb, var(--c-creatives) 70%, transparent), 3px 0 0 color-mix(in srgb, var(--c-podcast) 70%, transparent); }
-  h1 .ch:hover { transform: translateY(-0.08em) rotate(-4deg) scale(1.08); color: var(--c-ads); transition-duration: 0.18s; }
-  .hero-copy .sub { position: relative; background: linear-gradient(100deg, var(--fg) 42%, color-mix(in srgb, var(--c-ads) 80%, #fff) 50%, var(--fg) 58%) 100% 0 / 300% 100% no-repeat; -webkit-background-clip: text; background-clip: text; }
-  .hero-copy:hover .sub { color: transparent; animation: flare 1.1s ease-out 0.15s both; }
+  h1 .ch { display: inline-block; transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--rz, 0deg)); transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2); will-change: transform; }
+  .hero-copy.lit h1 .ch { transition-duration: 0.12s; }
+  .hero-copy.lit > h1 { color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--fg) 55%, transparent); }
+  .hero-copy .h1-light { position: absolute; left: 0; top: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+  .hero-copy .h1-light h1 { color: var(--fg); -webkit-text-stroke: 0; -webkit-mask-image: radial-gradient(130px circle at var(--lx, -200px) var(--ly, -200px), #000 0 45%, transparent 100%); mask-image: radial-gradient(130px circle at var(--lx, -200px) var(--ly, -200px), #000 0 45%, transparent 100%); }
+  .hero-copy.lit .h1-light { opacity: 1; }
+  .hero-copy::after { content: ""; position: absolute; inset: -2rem; pointer-events: none; opacity: 0; transition: opacity 0.3s; background: radial-gradient(220px circle at var(--lx, 50%) var(--ly, 50%), color-mix(in srgb, var(--c-ads) 28%, transparent), transparent 70%); mix-blend-mode: screen; }
+  .hero-copy.lit::after { opacity: 1; }
   .hero-copy:hover .pill { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-mograph) 18%, transparent); }
 }
-@keyframes chpop { 0% { transform: translateY(0); } 30% { transform: translateY(-0.12em) skewX(-6deg); } 60% { transform: translateY(0.03em); } 100% { transform: translateY(0); } }
-@keyframes flare { from { background-position: 100% 0; } to { background-position: 0% 0; } }
-html.no-motion .hero-copy:hover h1 .ch, html.no-motion .hero-copy:hover .sub { animation: none; }
 .sub { margin: 0.7rem 0 0; font-family: var(--display); font-weight: 200; font-stretch: 100%; font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; }
 .pill { display: inline-flex; align-items: center; gap: 0.65rem; margin: 1.6rem 0 0.9rem; padding: 0.5rem 1rem 0.5rem 0.8rem; border: 1px solid color-mix(in srgb, var(--c-mograph) 65%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--c-mograph) 14%, var(--surface)); }
 .pill i { position: relative; width: 9px; height: 9px; border-radius: 50%; background: var(--c-mograph); }
@@ -1624,6 +1623,35 @@ html.no-motion { scroll-behavior: auto; }
     wrap.style.opacity = '0';
     var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { io.disconnect(); wrap.style.opacity = ''; wrap.classList.add('stamp'); } }); }, { threshold: 0.4 });
     io.observe(wrap);
+  })();
+
+  /* hero name: letters split so they can be magnetic; a spotlight layer follows the pointer */
+  (function () {
+    var col = document.getElementById('hero-copy'), h1 = col && col.querySelector('h1');
+    if (!h1 || reduce) return;
+    var txt = h1.textContent; h1.setAttribute('aria-label', txt); h1.textContent = '';
+    Array.prototype.forEach.call(txt, function (ch) { var sp = document.createElement('span'); sp.className = 'ch'; sp.setAttribute('aria-hidden', 'true'); sp.textContent = ch; h1.appendChild(sp); });
+    if (!window.matchMedia('(hover: hover)').matches) return;
+    var light = document.createElement('div'); light.className = 'h1-light'; light.setAttribute('aria-hidden', 'true');
+    var h1b = h1.cloneNode(true); h1b.removeAttribute('aria-label'); light.appendChild(h1b); col.appendChild(light);
+    function place() { light.style.left = h1.offsetLeft + 'px'; light.style.top = h1.offsetTop + 'px'; light.style.width = h1.offsetWidth + 'px'; }
+    place(); window.addEventListener('resize', place);
+    var chs = Array.prototype.slice.call(h1.querySelectorAll('.ch')), chs2 = Array.prototype.slice.call(h1b.querySelectorAll('.ch'));
+    col.addEventListener('pointermove', function (e) {
+      var r = col.getBoundingClientRect();
+      col.classList.add('lit'); col.style.setProperty('--lx', (e.clientX - r.left) + 'px'); col.style.setProperty('--ly', (e.clientY - r.top) + 'px');
+      var hr = h1.getBoundingClientRect();
+      light.style.setProperty('--lx', (e.clientX - hr.left) + 'px'); light.style.setProperty('--ly', (e.clientY - hr.top) + 'px');
+      chs.forEach(function (c, i) {
+        var b = c.getBoundingClientRect(), dx = e.clientX - (b.left + b.width / 2), dy = e.clientY - (b.top + b.height / 2), d = Math.sqrt(dx * dx + dy * dy), R = 260;
+        var k = d < R ? (1 - d / R) * 0.22 : 0, tx = (dx * k).toFixed(1) + 'px', ty = (dy * k).toFixed(1) + 'px', rz = (dx * k * 0.05).toFixed(2) + 'deg';
+        [c, chs2[i]].forEach(function (el) { if (el) { el.style.setProperty('--dx', tx); el.style.setProperty('--dy', ty); el.style.setProperty('--rz', rz); } });
+      });
+    });
+    col.addEventListener('pointerleave', function () {
+      col.classList.remove('lit');
+      chs.concat(chs2).forEach(function (c) { c.style.setProperty('--dx', '0px'); c.style.setProperty('--dy', '0px'); c.style.setProperty('--rz', '0deg'); });
+    });
   })();
 
   /* folders */
