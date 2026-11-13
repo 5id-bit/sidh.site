@@ -375,6 +375,11 @@ h2 { margin: 0; font-family: var(--display); font-weight: 800; font-stretch: 75%
 .folder:hover .f-front, .folder[aria-expanded="true"] .f-front { transform: rotateX(-24deg); }
 .folder:hover .p1, .folder[aria-expanded="true"] .p1 { transform: translateY(-14%) rotate(-3.5deg); }
 .folder:hover .p2, .folder[aria-expanded="true"] .p2 { transform: translateY(-9%) rotate(3deg); }
+/* the open folder rests in its lifted pose, so it still moves further when hovered instead of looking frozen */
+.folder[aria-expanded="true"]:hover .f-front { transform: rotateX(-36deg); }
+.folder[aria-expanded="true"]:hover .p1 { transform: translateY(-26%) rotate(-5deg); }
+.folder[aria-expanded="true"]:hover .p2 { transform: translateY(-18%) rotate(4.5deg); }
+.folder[aria-expanded="true"]:hover { transform: translateY(-8px); }
 .folder[aria-expanded="true"]::after {
   content: ""; position: absolute; left: 50%; bottom: -1.1rem; width: 22px; height: 13px; margin-left: -11px;
   background: var(--fc); clip-path: polygon(0 0, 100% 0, 50% 100%);
