@@ -331,6 +331,10 @@ h1 {
 .deck-cap { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem 1rem; margin: 0.5rem 0 0; color: var(--muted); }
 .shuffle { padding: 0.45rem 0.85rem; border: 1px solid var(--muted); border-radius: 999px; background: none; color: var(--fg); font: 500 0.7rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
 .shuffle:hover { background: var(--fg); color: var(--bg); }
+.shuffle .sh-arrow { display: inline-block; transition: transform 0.2s; }
+.shuffle:hover .sh-arrow { transform: rotate(40deg); }
+.shuffle.spin .sh-arrow { animation: shspin 0.6s cubic-bezier(0.3, 0.7, 0.2, 1); }
+@keyframes shspin { to { transform: rotate(360deg); } }
 .deck.shuffling .dcard.a, .deck.shuffling .dcard.b, .deck.shuffling .dcard.c { transform: translateX(0) rotate(0) scale(0.86); }
 
 /* tape ticker */
@@ -880,7 +884,7 @@ html.no-motion { scroll-behavior: auto; }
                 <span class="d-bot"><b>Women's Day</b><i class="d-bar"></i></span>
               </a>
             </div>
-            <div class="deck-cap"><span class="mono">Tap a reel to watch it</span><button class="shuffle" type="button" id="shuffle">Shuffle ↻</button></div>
+            <div class="deck-cap"><span class="mono">Tap a reel to watch it</span><button class="shuffle" type="button" id="shuffle">Shuffle <span class="sh-arrow" aria-hidden="true">↻</span></button></div>
           </div>
         </div>
       </div>
@@ -1488,7 +1492,7 @@ html.no-motion { scroll-behavior: auto; }
   }
   shuffle(false);
   var sb = document.getElementById('shuffle');
-  if (sb) sb.addEventListener('click', function () { shuffle(true); });
+  if (sb) sb.addEventListener('click', function () { sb.classList.remove('spin'); void sb.offsetWidth; sb.classList.add('spin'); shuffle(true); });
   /* the progress bar paces the shuffle: when it finishes one fill, the next three reels come in */
   if (!reduce && deckEl) {
     deckEl.addEventListener('animationiteration', function (e) {
