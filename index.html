@@ -217,6 +217,14 @@ a { color: inherit; }
   top: 14px; bottom: 14px;
   left: max(14px, env(safe-area-inset-left, 0px));
   right: max(14px, env(safe-area-inset-right, 0px));
+}
+/* the viewfinder's rule-of-thirds lines run behind the whole site, fixed to the screen like a camera overlay */
+.thirds {
+  position: fixed; z-index: 0; pointer-events: none;
+  top: 14px; bottom: 14px;
+  left: max(14px, env(safe-area-inset-left, 0px));
+  right: max(14px, env(safe-area-inset-right, 0px));
+  --grid: color-mix(in srgb, var(--fg) 8%, transparent);
   background:
     linear-gradient(var(--grid), var(--grid)) 33.333% 0 / 1px 100% no-repeat,
     linear-gradient(var(--grid), var(--grid)) 66.666% 0 / 1px 100% no-repeat,
@@ -820,6 +828,7 @@ html.no-motion { scroll-behavior: auto; }
   </defs>
 </svg>
 
+<div class="thirds" aria-hidden="true"></div>
 <header class="top">
   <div class="wrap bar">
     <a class="mark" href="#reels" aria-label="SIDH, portfolio home">SIDH</a>
