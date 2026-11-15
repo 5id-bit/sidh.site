@@ -260,15 +260,16 @@ h1 {
 /* hero text column behaves like an editing timeline: a red playhead with a timecode follows the pointer,
    and the letters of the name rise under it like audio levels, tinting toward the accent colour */
 .hero-copy { position: relative; }
-@media (hover: hover) {
+@media (hover: hover) { h1 { white-space: nowrap; } .hero-copy:hover .pill { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-mograph) 18%, transparent); } }
+@media all {
   h1 { white-space: nowrap; }
+  .playhead.flip span { left: auto; right: 10px; }
   h1 .ch { display: inline-block; transform-origin: 50% 100%; transform: scaleY(var(--sy, 1)); color: color-mix(in srgb, var(--c-ads) calc(var(--k, 0) * 100%), var(--fg)); transition: transform 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.35), color 0.4s; will-change: transform; }
   .hero-copy.lit h1 .ch { transition-duration: 0.1s; }
   .playhead { position: absolute; top: -0.9rem; bottom: -0.6rem; left: 0; width: 2px; background: var(--rec); transform: translateX(var(--px, 0px)); opacity: 0; transition: opacity 0.25s; pointer-events: none; z-index: 3; }
   .playhead::before { content: ""; position: absolute; left: -6px; top: -2px; border: 7px solid transparent; border-top-color: var(--rec); }
   .playhead span { position: absolute; left: 10px; top: -4px; padding: 0.2rem 0.4rem; background: var(--rec); color: #fff; font: 500 0.62rem/1 var(--mono); letter-spacing: 0.08em; white-space: nowrap; border-radius: 2px; }
   .hero-copy.lit .playhead { opacity: 1; }
-  .hero-copy:hover .pill { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-mograph) 18%, transparent); }
 }
 .sub { margin: 0.7rem 0 0; font-family: var(--display); font-weight: 200; font-stretch: 100%; font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; }
 .pill { display: inline-flex; align-items: center; gap: 0.65rem; margin: 1.6rem 0 0.9rem; padding: 0.5rem 1rem 0.5rem 0.8rem; border: 1px solid color-mix(in srgb, var(--c-mograph) 65%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--c-mograph) 14%, var(--surface)); }
@@ -540,15 +541,15 @@ h2 { margin: 0; font-family: var(--display); font-weight: 800; font-stretch: 75%
 
 /* contact call sheet */
 .callsheet { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-.bars { display: flex; height: clamp(12px, 2vw, 18px); }
-.bars i { flex: 1; }
-.bars i:nth-child(1) { background: var(--fg); }
-.bars i:nth-child(2) { background: var(--c-ads); }
-.bars i:nth-child(3) { background: var(--playhead); }
-.bars i:nth-child(4) { background: var(--c-mograph); }
-.bars i:nth-child(5) { background: var(--c-podcast); }
-.bars i:nth-child(6) { background: var(--rec); }
-.bars i:nth-child(7) { background: var(--c-creatives); }
+/* call sheet header: a miniature editing timeline, clips sliding under a fixed playhead */
+.tl-strip { position: relative; height: clamp(26px, 3.2vw, 34px); overflow: hidden; background: color-mix(in srgb, var(--fg) 7%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--fg) 18%, transparent); }
+.tl-strip::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 5px; background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--fg) 45%, transparent) 0 1px, transparent 1px 12px); }
+.tl-track { display: flex; width: max-content; height: 100%; padding: 8px 0 4px; box-sizing: border-box; animation: tlmove 26s linear infinite; }
+.tl-track b { display: block; flex: none; width: var(--w); height: 100%; margin-right: 3px; border-radius: 3px; background: var(--c); opacity: 0.9; }
+.tl-head { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--rec); }
+.tl-head::before { content: ""; position: absolute; left: -5px; top: 0; border: 6px solid transparent; border-top-color: var(--rec); }
+@keyframes tlmove { to { transform: translateX(-50%); } }
+html.no-motion .tl-track { animation: none; }
 .cs-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.25rem; padding: clamp(1.25rem, 3.5vw, 2.75rem); }
 @media (min-width: 900px) { .cs-body { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 3rem; } }
 .cs-main { min-width: 0; }
@@ -762,6 +763,13 @@ html.no-motion { scroll-behavior: auto; }
   .brief .chips li { padding: 0.5rem 0.85rem; }
   .cs-links a, .cs-links .static { padding: 0.95rem 1rem; min-height: 3.4rem; }
   .cs-links li:nth-child(odd) a, .cs-links li:nth-child(odd) .static, .cs-links li:nth-child(even) a, .cs-links li:nth-child(even) .static { transform: none; }
+
+  /* new: timeline strip and playhead sized for phones */
+  .tl-strip { height: 24px; }
+  .tl-track { animation-duration: 20s; }
+  .tl-track b { width: calc(var(--w) * 0.6); }
+  .playhead { top: -0.5rem; bottom: -0.3rem; }
+  .playhead span { font-size: 0.56rem; top: -6px; }
 
   /* every tappable thing at least ~44px tall */
   .btn { min-height: 2.75rem; }
@@ -1075,7 +1083,7 @@ html.no-motion { scroll-behavior: auto; }
     <section id="contact">
       <div class="wrap">
         <div class="callsheet rv">
-          <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="tl-strip" aria-hidden="true"><div class="tl-track"><b style="--w:120px;--c:var(--c-creatives)"></b><b style="--w:64px;--c:var(--c-ads)"></b><b style="--w:150px;--c:var(--c-mograph)"></b><b style="--w:48px;--c:var(--c-podcast)"></b><b style="--w:96px;--c:var(--playhead)"></b><b style="--w:180px;--c:var(--fg)"></b><b style="--w:56px;--c:var(--c-creatives)"></b><b style="--w:110px;--c:var(--c-ads)"></b><b style="--w:72px;--c:var(--c-mograph)"></b><b style="--w:140px;--c:var(--c-podcast)"></b><b style="--w:90px;--c:var(--playhead)"></b><b style="--w:60px;--c:var(--fg)"></b><b style="--w:120px;--c:var(--c-creatives)"></b><b style="--w:64px;--c:var(--c-ads)"></b><b style="--w:150px;--c:var(--c-mograph)"></b><b style="--w:48px;--c:var(--c-podcast)"></b><b style="--w:96px;--c:var(--playhead)"></b><b style="--w:180px;--c:var(--fg)"></b><b style="--w:56px;--c:var(--c-creatives)"></b><b style="--w:110px;--c:var(--c-ads)"></b><b style="--w:72px;--c:var(--c-mograph)"></b><b style="--w:140px;--c:var(--c-podcast)"></b><b style="--w:90px;--c:var(--playhead)"></b><b style="--w:60px;--c:var(--fg)"></b></div><i class="tl-head"></i></div>
           <div class="cs-rec mono" aria-hidden="true"><span class="dot"></span>REC <span id="cs-tc">00:00:00:00</span><span class="cs-hud">CAM A · 4K · 24 FPS</span></div>
           <div class="cs-body">
             <div class="cs-main">
@@ -1642,24 +1650,39 @@ html.no-motion { scroll-behavior: auto; }
     if (!h1 || reduce) return;
     var txt = h1.textContent; h1.setAttribute('aria-label', txt); h1.textContent = '';
     Array.prototype.forEach.call(txt, function (ch) { var sp = document.createElement('span'); sp.className = 'ch'; sp.setAttribute('aria-hidden', 'true'); sp.textContent = ch; h1.appendChild(sp); });
-    if (!window.matchMedia('(hover: hover)').matches) return;
+    var canHover = window.matchMedia('(hover: hover)').matches;
     var ph = document.createElement('div'); ph.className = 'playhead'; ph.setAttribute('aria-hidden', 'true');
     var lab = document.createElement('span'); lab.textContent = '00:00:00:00'; ph.appendChild(lab); col.appendChild(ph);
     var chs = Array.prototype.slice.call(h1.querySelectorAll('.ch'));
     function z(n) { return (n < 10 ? '0' : '') + n; }
-    col.addEventListener('pointermove', function (e) {
-      var r = col.getBoundingClientRect(), x = Math.max(0, Math.min(r.width, e.clientX - r.left));
-      col.classList.add('lit'); ph.style.setProperty('--px', x.toFixed(1) + 'px');
+    function scrub(cx) {
+      var r = col.getBoundingClientRect(), x = Math.max(0, Math.min(r.width, cx - r.left));
+      col.classList.add('lit'); ph.style.setProperty('--px', x.toFixed(1) + 'px'); ph.classList.toggle('flip', x > r.width * 0.62);
       var f = Math.round(x / r.width * 240); lab.textContent = '00:00:' + z(Math.floor(f / 24)) + ':' + z(f % 24);
       chs.forEach(function (c) {
-        var b = c.getBoundingClientRect(), d = Math.abs(e.clientX - (b.left + b.width / 2)), k = Math.max(0, 1 - d / 230);
+        var b = c.getBoundingClientRect(), d = Math.abs(cx - (b.left + b.width / 2)), k = Math.max(0, 1 - d / (canHover ? 230 : 110));
         k = k * k; c.style.setProperty('--sy', (1 + k * 0.3).toFixed(3)); c.style.setProperty('--k', k.toFixed(3));
       });
-    });
-    col.addEventListener('pointerleave', function () {
-      col.classList.remove('lit');
-      chs.forEach(function (c) { c.style.setProperty('--sy', '1'); c.style.setProperty('--k', '0'); });
-    });
+    }
+    function rest() { col.classList.remove('lit'); chs.forEach(function (c) { c.style.setProperty('--sy', '1'); c.style.setProperty('--k', '0'); }); }
+    if (canHover) {
+      col.addEventListener('pointermove', function (e) { scrub(e.clientX); });
+      col.addEventListener('pointerleave', rest);
+    } else {
+      /* phones have no hover: the playhead sweeps across the name by itself once on arrival, and again on a tap */
+      var busy = false;
+      var sweep = function () {
+        if (busy) return; busy = true;
+        var hr = h1.getBoundingClientRect(), t0 = performance.now(), dur = 1700;
+        (function fr(now) {
+          var p = Math.min(1, (now - t0) / dur), e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+          scrub(hr.left + hr.width * e);
+          if (p < 1) requestAnimationFrame(fr); else setTimeout(function () { rest(); busy = false; }, 250);
+        })(t0);
+      };
+      setTimeout(sweep, 900);
+      h1.addEventListener('click', sweep);
+    }
   })();
 
   /* folders */
