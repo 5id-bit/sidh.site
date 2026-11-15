@@ -257,19 +257,17 @@ h1 {
   text-transform: uppercase;
 }
 @media (min-width: 960px) { h1 { font-size: clamp(6rem, 12.5vw, 10.5rem); } }
-/* hero text column: the letters of the name are magnetic, drifting toward the pointer, and a soft studio
-   spotlight follows the cursor across the block; the outline-only name fills in solid where the light falls */
+/* hero text column behaves like an editing timeline: a red playhead with a timecode follows the pointer,
+   and the letters of the name rise under it like audio levels, tinting toward the accent colour */
 .hero-copy { position: relative; }
 @media (hover: hover) {
   h1 { white-space: nowrap; }
-  h1 .ch { display: inline-block; transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--rz, 0deg)); transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2); will-change: transform; }
-  .hero-copy.lit h1 .ch { transition-duration: 0.12s; }
-  .hero-copy.lit > h1 { color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--fg) 55%, transparent); }
-  .hero-copy .h1-light { position: absolute; left: 0; top: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
-  .hero-copy .h1-light h1 { color: var(--fg); -webkit-text-stroke: 0; -webkit-mask-image: radial-gradient(130px circle at var(--lx, -200px) var(--ly, -200px), #000 0 45%, transparent 100%); mask-image: radial-gradient(130px circle at var(--lx, -200px) var(--ly, -200px), #000 0 45%, transparent 100%); }
-  .hero-copy.lit .h1-light { opacity: 1; }
-  .hero-copy::after { content: ""; position: absolute; inset: -2rem; pointer-events: none; opacity: 0; transition: opacity 0.3s; background: radial-gradient(220px circle at var(--lx, 50%) var(--ly, 50%), color-mix(in srgb, var(--c-ads) 28%, transparent), transparent 70%); mix-blend-mode: screen; }
-  .hero-copy.lit::after { opacity: 1; }
+  h1 .ch { display: inline-block; transform-origin: 50% 100%; transform: scaleY(var(--sy, 1)); color: color-mix(in srgb, var(--c-ads) calc(var(--k, 0) * 100%), var(--fg)); transition: transform 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.35), color 0.4s; will-change: transform; }
+  .hero-copy.lit h1 .ch { transition-duration: 0.1s; }
+  .playhead { position: absolute; top: -0.9rem; bottom: -0.6rem; left: 0; width: 2px; background: var(--rec); transform: translateX(var(--px, 0px)); opacity: 0; transition: opacity 0.25s; pointer-events: none; z-index: 3; }
+  .playhead::before { content: ""; position: absolute; left: -6px; top: -2px; border: 7px solid transparent; border-top-color: var(--rec); }
+  .playhead span { position: absolute; left: 10px; top: -4px; padding: 0.2rem 0.4rem; background: var(--rec); color: #fff; font: 500 0.62rem/1 var(--mono); letter-spacing: 0.08em; white-space: nowrap; border-radius: 2px; }
+  .hero-copy.lit .playhead { opacity: 1; }
   .hero-copy:hover .pill { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-mograph) 18%, transparent); }
 }
 .sub { margin: 0.7rem 0 0; font-family: var(--display); font-weight: 200; font-stretch: 100%; font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; }
@@ -1638,32 +1636,29 @@ html.no-motion { scroll-behavior: auto; }
     io.observe(wrap);
   })();
 
-  /* hero name: letters split so they can be magnetic; a spotlight layer follows the pointer */
+  /* hero name: a timeline playhead follows the pointer and the letters rise under it like audio levels */
   (function () {
     var col = document.getElementById('hero-copy'), h1 = col && col.querySelector('h1');
     if (!h1 || reduce) return;
     var txt = h1.textContent; h1.setAttribute('aria-label', txt); h1.textContent = '';
     Array.prototype.forEach.call(txt, function (ch) { var sp = document.createElement('span'); sp.className = 'ch'; sp.setAttribute('aria-hidden', 'true'); sp.textContent = ch; h1.appendChild(sp); });
     if (!window.matchMedia('(hover: hover)').matches) return;
-    var light = document.createElement('div'); light.className = 'h1-light'; light.setAttribute('aria-hidden', 'true');
-    var h1b = h1.cloneNode(true); h1b.removeAttribute('aria-label'); light.appendChild(h1b); col.appendChild(light);
-    function place() { light.style.left = h1.offsetLeft + 'px'; light.style.top = h1.offsetTop + 'px'; light.style.width = h1.offsetWidth + 'px'; }
-    place(); window.addEventListener('resize', place);
-    var chs = Array.prototype.slice.call(h1.querySelectorAll('.ch')), chs2 = Array.prototype.slice.call(h1b.querySelectorAll('.ch'));
+    var ph = document.createElement('div'); ph.className = 'playhead'; ph.setAttribute('aria-hidden', 'true');
+    var lab = document.createElement('span'); lab.textContent = '00:00:00:00'; ph.appendChild(lab); col.appendChild(ph);
+    var chs = Array.prototype.slice.call(h1.querySelectorAll('.ch'));
+    function z(n) { return (n < 10 ? '0' : '') + n; }
     col.addEventListener('pointermove', function (e) {
-      var r = col.getBoundingClientRect();
-      col.classList.add('lit'); col.style.setProperty('--lx', (e.clientX - r.left) + 'px'); col.style.setProperty('--ly', (e.clientY - r.top) + 'px');
-      var hr = h1.getBoundingClientRect();
-      light.style.setProperty('--lx', (e.clientX - hr.left) + 'px'); light.style.setProperty('--ly', (e.clientY - hr.top) + 'px');
-      chs.forEach(function (c, i) {
-        var b = c.getBoundingClientRect(), dx = e.clientX - (b.left + b.width / 2), dy = e.clientY - (b.top + b.height / 2), d = Math.sqrt(dx * dx + dy * dy), R = 260;
-        var k = d < R ? (1 - d / R) * 0.22 : 0, tx = (dx * k).toFixed(1) + 'px', ty = (dy * k).toFixed(1) + 'px', rz = (dx * k * 0.05).toFixed(2) + 'deg';
-        [c, chs2[i]].forEach(function (el) { if (el) { el.style.setProperty('--dx', tx); el.style.setProperty('--dy', ty); el.style.setProperty('--rz', rz); } });
+      var r = col.getBoundingClientRect(), x = Math.max(0, Math.min(r.width, e.clientX - r.left));
+      col.classList.add('lit'); ph.style.setProperty('--px', x.toFixed(1) + 'px');
+      var f = Math.round(x / r.width * 240); lab.textContent = '00:00:' + z(Math.floor(f / 24)) + ':' + z(f % 24);
+      chs.forEach(function (c) {
+        var b = c.getBoundingClientRect(), d = Math.abs(e.clientX - (b.left + b.width / 2)), k = Math.max(0, 1 - d / 230);
+        k = k * k; c.style.setProperty('--sy', (1 + k * 0.3).toFixed(3)); c.style.setProperty('--k', k.toFixed(3));
       });
     });
     col.addEventListener('pointerleave', function () {
       col.classList.remove('lit');
-      chs.concat(chs2).forEach(function (c) { c.style.setProperty('--dx', '0px'); c.style.setProperty('--dy', '0px'); c.style.setProperty('--rz', '0deg'); });
+      chs.forEach(function (c) { c.style.setProperty('--sy', '1'); c.style.setProperty('--k', '0'); });
     });
   })();
 
