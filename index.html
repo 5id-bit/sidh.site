@@ -783,6 +783,23 @@ html.no-motion { scroll-behavior: auto; }
   .glance b { font-size: 1.9rem; }
   .cv-skills { grid-template-columns: 1fr; gap: 0.9rem; }
 }
+/* touch screens only (phones and tablets): every control is a comfortable thumb target. Mouse devices are untouched. */
+@media (pointer: coarse) {
+  .mark, .switch a, .subnav a, .shuffle { min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; }
+  .shuffle { padding-inline: 1.1rem; }
+  .btn { min-height: 2.75rem; }
+  .contact-mail { display: inline-block; padding-block: 0.6rem; }
+  .sec-head a { display: inline-block; padding-block: 0.75rem; }
+  .d-head a, .cv-note a, .side a { display: inline-block; padding-block: 0.45rem; }
+}
+/* phones: small capsule labels brought up to a readable size */
+@media (max-width: 600px) {
+  .eyebrow { font-size: 0.8rem; }
+  .pill { font-size: 0.8rem; }
+  .cs-kicker { font-size: 0.78rem; }
+  .chips li, .brief .chips li, .chips.solid li { font-size: 0.82rem; }
+  .cs-kicker { font-size: 0.8rem; }
+}
 </style>
 <script>
 /* new colours on every refresh: half the time a random hue ("auto"), otherwise one of the preset palettes.
@@ -1673,6 +1690,7 @@ html.no-motion { scroll-behavior: auto; }
       var busy = false;
       var sweep = function () {
         if (busy) return; busy = true;
+        ph.style.bottom = 'auto'; ph.style.height = (h1.offsetHeight + 14) + 'px';
         var hr = h1.getBoundingClientRect(), t0 = performance.now(), dur = 1700;
         (function fr(now) {
           var p = Math.min(1, (now - t0) / dur), e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
