@@ -800,6 +800,53 @@ html.no-motion { scroll-behavior: auto; }
   .chips li, .brief .chips li, .chips.solid li { font-size: 0.82rem; }
   .cs-kicker { font-size: 0.8rem; }
 }
+/* ─── Smooth arrival: a thin load bar, the header drops in, and the hero builds up piece by piece ─── */
+.loadbar { position: fixed; left: 0; top: 0; z-index: 80; height: 3px; width: 100%; transform-origin: 0 50%; background: linear-gradient(90deg, var(--c-creatives), var(--c-ads), var(--c-mograph), var(--c-podcast)); pointer-events: none; animation: loadbar 1.25s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
+@keyframes loadbar { 0% { transform: scaleX(0); opacity: 1; } 75% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes arrive { from { opacity: 0; translate: 0 22px; filter: blur(8px); } to { opacity: 1; translate: 0 0; filter: blur(0); } }
+@keyframes dropin { from { opacity: 0; translate: 0 -14px; } to { opacity: 1; translate: 0 0; } }
+@keyframes deckin { from { opacity: 0; translate: 0 34px; scale: 0.94; } to { opacity: 1; translate: 0 0; scale: 1; } }
+header.top { animation: dropin 0.6s ease-out both; }
+#hero .eyebrow { animation: arrive 0.7s ease-out 0.15s both; }
+.hero-copy > h1 { animation: arrive 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s both; }
+.hero-copy > .sub { animation: arrive 0.7s ease-out 0.4s both; }
+.hero-copy > .pill { animation: arrive 0.7s ease-out 0.52s both; }
+.hero-copy > .lede { animation: arrive 0.7s ease-out 0.64s both; }
+.hero-copy > .cta { animation: arrive 0.7s ease-out 0.76s both; }
+#hero .deck { animation: deckin 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s both; }
+.ticker-wrap { animation: arrive 0.8s ease-out 0.95s both; }
+html.no-motion .loadbar { display: none; }
+html.no-motion header.top, html.no-motion #hero .eyebrow, html.no-motion .hero-copy > *, html.no-motion #hero .deck, html.no-motion .ticker-wrap { animation: none; }
+
+/* ─── Hover effects (mouse devices only) ─── */
+@media (hover: hover) and (pointer: fine) {
+  .mark { transition: letter-spacing 0.3s ease, color 0.3s; }
+  .mark:hover { letter-spacing: 0.12em; color: var(--playhead); }
+  .subnav a { background: linear-gradient(var(--playhead), var(--playhead)) 0 100% / 0 2px no-repeat; transition: background-size 0.3s ease, color 0.2s; }
+  .subnav a:hover { background-size: 100% 2px; }
+  .btn { transition: transform 0.2s ease, box-shadow 0.25s ease, background 0.2s, color 0.2s, border-color 0.2s; }
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--playhead) 80%, transparent); }
+  .btn:active { transform: translateY(0); box-shadow: none; }
+  .app, .edu > div, .exp > li, .seg, .glance > div, .career { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s; }
+  .app:hover { transform: translateY(-6px) rotate(-1deg); border-color: var(--fc, var(--playhead)); box-shadow: 0 16px 28px -18px rgba(0, 0, 0, 0.55); }
+  .app .tool-logo { transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.5); }
+  .app:hover .tool-logo { transform: scale(1.14) rotate(6deg); }
+  .edu > div:hover { transform: translateY(-5px); border-color: var(--playhead); box-shadow: 0 14px 26px -18px rgba(0, 0, 0, 0.5); }
+  .edu .yr { transition: color 0.3s; }
+  .edu > div:hover .yr { color: var(--playhead); }
+  .exp > li:hover { transform: translateX(6px); border-color: var(--playhead); box-shadow: -6px 0 0 -2px var(--playhead); }
+  .seg:hover { transform: translateY(-4px); box-shadow: 0 12px 22px -16px rgba(0, 0, 0, 0.5); }
+  .glance > div:hover { transform: translateY(-4px); box-shadow: 0 12px 22px -16px rgba(0, 0, 0, 0.35); }
+  .chips li { transition: transform 0.2s ease, background 0.2s, border-color 0.2s; }
+  .chips li:hover { transform: translateY(-2px) scale(1.05); border-color: var(--playhead); }
+  .cv-chips li { transition: transform 0.2s ease, border-color 0.2s; }
+  .cv-chips li:hover { transform: translateY(-2px); border-color: var(--paper-ink); }
+  .frame .f-title { transition: letter-spacing 0.3s ease; }
+  .frame:hover .f-title { letter-spacing: 0.02em; }
+  .frame:hover { box-shadow: 0 18px 30px -18px rgba(0, 0, 0, 0.7); }
+  .f-go { transition: translate 0.25s ease; }
+  .frame:hover .f-go { translate: 4px 0; }
+}
 </style>
 <script>
 /* new colours on every refresh: half the time a random hue ("auto"), otherwise one of the preset palettes.
@@ -852,6 +899,7 @@ html.no-motion { scroll-behavior: auto; }
 </svg>
 
 <div class="thirds" aria-hidden="true"></div>
+<div class="loadbar" aria-hidden="true"></div>
 <header class="top">
   <div class="wrap bar">
     <a class="mark" href="#reels" aria-label="SIDH, portfolio home">SIDH</a>
