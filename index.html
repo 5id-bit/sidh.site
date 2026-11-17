@@ -801,7 +801,9 @@ html.no-motion { scroll-behavior: auto; }
   .cs-kicker { font-size: 0.8rem; }
 }
 /* ─── Smooth arrival: a thin load bar, the header drops in, and the hero builds up piece by piece ─── */
-.loadbar { position: fixed; left: 0; top: 0; z-index: 80; height: 3px; width: 100%; transform-origin: 0 50%; background: linear-gradient(90deg, var(--c-creatives), var(--c-ads), var(--c-mograph), var(--c-podcast)); pointer-events: none; animation: loadbar 1.25s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
+.loadbar { display: none; }
+@media (hover: hover) and (pointer: fine) {
+.loadbar { display: block; position: fixed; left: 0; top: 0; z-index: 80; height: 3px; width: 100%; transform-origin: 0 50%; background: linear-gradient(90deg, var(--c-creatives), var(--c-ads), var(--c-mograph), var(--c-podcast)); pointer-events: none; animation: loadbar 1.25s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
 @keyframes loadbar { 0% { transform: scaleX(0); opacity: 1; } 75% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
 @keyframes arrive { from { opacity: 0; translate: 0 22px; filter: blur(8px); } to { opacity: 1; translate: 0 0; filter: blur(0); } }
 @keyframes dropin { from { opacity: 0; translate: 0 -14px; } to { opacity: 1; translate: 0 0; } }
@@ -815,6 +817,7 @@ header.top { animation: dropin 0.6s ease-out both; }
 .hero-copy > .cta { animation: arrive 0.7s ease-out 0.76s both; }
 #hero .deck { animation: deckin 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s both; }
 .ticker-wrap { animation: arrive 0.8s ease-out 0.95s both; }
+}
 html.no-motion .loadbar { display: none; }
 html.no-motion header.top, html.no-motion #hero .eyebrow, html.no-motion .hero-copy > *, html.no-motion #hero .deck, html.no-motion .ticker-wrap { animation: none; }
 
