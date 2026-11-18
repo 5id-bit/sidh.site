@@ -122,6 +122,7 @@ body::before {
   height: env(safe-area-inset-top, 0px);
   z-index: 50;
   background: var(--bg);
+  transform: translateZ(0);
 }
 /* film grain */
 body::after {
@@ -163,7 +164,8 @@ a { color: inherit; }
 .js .rv.in { translate: none; scale: none; filter: none; }
 
 /* header */
-.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+/* the header itself reaches up under the phone's status bar, so nothing can show through that strip */
+.top { position: sticky; top: 0; padding-top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
 .progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; pointer-events: none; }
 .progress i { display: block; position: relative; width: var(--p, 0%); height: 100%; background: var(--playhead); }
 .progress i::after { content: ""; position: absolute; right: -1px; bottom: 0; width: 2px; height: 11px; background: var(--playhead); }
